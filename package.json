@@ -1,0 +1,21 @@
+{
+  "name": "@youdowell/k8s-galera-init",
+  "version": "0.0.1",
+  "description": "K8s MariaDB Galera init container",
+  "private": true,
+  "keywords": [
+    "kubernetes",
+    "k8s",
+    "docker",
+    "mysql",
+    "mariadb",
+    "galera"
+  ],
+  "author": "Andrew Usov <andrew.usov@gmail.com>",
+  "license": "ISC",
+  "scripts": {
+    "test": "make test",
+    "preversion": "npm test",
+    "postversion": "git push origin --tags"
+  }
+}
