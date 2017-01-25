@@ -12,9 +12,10 @@ Arguments:
 
 Environment variables and defaults:
 
-* `POD_NAMESPACE` - The namespace, e.g. `default`
+* `POD_NAMESPACE` - The namespace.
 * `GALERA_CONFIG=/etc/mysql/conf.d/galera.cnf` - The location of galera config file.
 * `CLUSTER_NAME=mysql` - The cluster name.
+* `SAFE_TO_BOOTSTRAP` - Set to "1" to force cluster recovery from the first node even if some tx can be lost that are commited before all nodes are crashed. Otherwise, cluster refuses to start after all nodes are crashed. 
 
 [peer-finder]: https://github.com/kubernetes/contrib/blob/master/pets/peer-finder/peer-finder.go
 [mariadb-image]: https://hub.docker.com/_/mariadb/

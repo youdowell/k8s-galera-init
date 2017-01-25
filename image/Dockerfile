@@ -1,5 +1,5 @@
 FROM alpine:3.5
-MAINTAINER Andrew Usov "andrew-usov@youdowell.com"
+MAINTAINER Andrew Usov "andrew.usov@youdowell.com"
 
 RUN set -x && \
 	apk add --no-cache --virtual=build-dependencies curl && \
