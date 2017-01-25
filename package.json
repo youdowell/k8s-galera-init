@@ -1,6 +1,6 @@
 {
   "name": "@youdowell/k8s-galera-init",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "K8s MariaDB Galera init container",
   "private": true,
   "keywords": [
