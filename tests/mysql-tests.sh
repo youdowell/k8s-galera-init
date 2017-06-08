@@ -34,8 +34,8 @@ stop() {
 }
 
 delete() {
-	kubectl --namespace ${NAMESPACE} delete svc,statefulset,pvc,pv -l "$label"
-	kubectl delete namespace ${NAMESPACE} --timeout=$TIMEOUT --force
+	kubectl --namespace ${NAMESPACE} delete svc,statefulset,pvc,pv -l "$label" || true
+	kubectl delete namespace ${NAMESPACE} --timeout=$TIMEOUT --force || true
 }
 
 # --------------------------------------
@@ -77,7 +77,7 @@ exec_sql() {
 
 populate_test_data() {
 	pod=${1:-"mysql-0"}
-	degree=${2:-20}
+	degree=${2:-16}
 	exec_sql "$pod" 'DROP DATABASE IF EXISTS test;'
 	exec_sql "$pod" 'CREATE DATABASE test;'
 	exec_sql "$pod" 'CREATE TABLE test.rnd_values (id BIGINT NOT NULL AUTO_INCREMENT, val INT NOT NULL, PRIMARY KEY (id));'
@@ -91,10 +91,26 @@ populate_test_data() {
 	echo "]"
 }
 
+wait_deleted() {
+	wait_count=${1:-1}
+	echo -n "Waiting for namespace teardown... ["
+	timeout=$((SECONDS + 120))
+	while [ $SECONDS -lt $timeout ]; do
+		kubectl get namespace ${NAMESPACE} &>/dev/null || break
+		sleep 2
+		echo -n "."
+	done
+	if kubectl get namespace ${NAMESPACE} &>/dev/null || false; then
+		echo "Failed: Timeout!]"
+    else
+    	echo "OK]"
+    fi
+}
+
 wait_ready() {
 	wait_count=${1:-1}
 	echo -n "Waiting until exactly $wait_count containers ready ["
-	timeout=$((SECONDS + 120))
+	timeout=$((SECONDS + 300))
 	while [ $SECONDS -lt $timeout ]; do
 		ready_count=$(kubectl --namespace ${NAMESPACE} get pods -l "$label" -o yaml 2>/dev/null | grep "ready: true" -c || true)
 		[ $ready_count -eq $wait_count ] && echo "OK]" && break
@@ -119,7 +135,7 @@ test_clusterShutdown_recovered() {
  	## When
  	stop
  	start 	
-	wait_ready 3 120
+	wait_ready 3
 
   	## Then
 	echo "Testing values"
@@ -185,7 +201,7 @@ test_nodeCrash_recovered() {
  	kubectl --namespace ${NAMESPACE} delete po "mysql-0" --grace-period=0 --force
 
 	# Populating data on another node
-	populate_test_data "mysql-1" 10
+	populate_test_data "mysql-1"
 
   	# Wait until all nodes are back
 	wait_ready 3
@@ -210,7 +226,7 @@ test_scale_recovered() {
 	wait_ready 1
 
  	## When
-	populate_test_data "mysql-0" 10
+	populate_test_data "mysql-0"
 
   	## Then
 	kubectl --namespace ${NAMESPACE} scale statefulsets mysql --replicas=3 --timeout=$TIMEOUT
@@ -235,6 +251,8 @@ test_scale_recovered() {
 all_tests=$(sed -nE 's/^(test_[a-zA-Z0-9_]+)[[:space:]]*[\(\{].*$/\1/p' $0)
 
 run_tests() {
+	delete
+	wait_deleted
 	create
 	echo "Running tests..."
 	for testname in "$@"; do

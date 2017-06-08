@@ -12,7 +12,10 @@ build:
 	docker build -t $(NAME):$(VERSION) --rm ./image
 
 test:
-	tests/mysql-tests.sh
+	tests/mysql-tests.sh 
+
+clean:
+	tests/mysql-tests.sh delete 
 
 tag-latest:
 	docker tag -f $(NAME):$(VERSION) $(NAME):latest
