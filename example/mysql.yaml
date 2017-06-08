@@ -34,7 +34,7 @@ spec:
         pod.beta.kubernetes.io/init-containers: '[
           {
             "name": "galera-init",
-            "image": "youdowell/k8s-galera-init:0.1.0",
+            "image": "youdowell/k8s-galera-init:0.1.1",
             "args": ["-service=mysql"],
             "env": [
               {
@@ -59,7 +59,8 @@ spec:
               },
               {
                 "name": "data",
-                "mountPath": "/var/lib/mysql"
+                "mountPath": "/var/lib/mysql",
+                "subPath": "mysql"
               }
             ]
           }
@@ -107,6 +108,7 @@ spec:
           mountPath: /etc/mysql/conf.d
         - name: data
           mountPath: /var/lib/mysql
+          subPath: mysql
       volumes:
       - name: config
         configMap:
@@ -114,8 +116,8 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: data
-      annotations:
-        volume.alpha.kubernetes.io/storage-class: anything
+#      annotations:
+#        volume.alpha.kubernetes.io/storage-class: anything
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
