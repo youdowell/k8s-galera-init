@@ -1,12 +1,12 @@
 NAME = youdowell/k8s-galera-init
-VERSION = $(shell sed -nE 's/.*"version"[[:space:]]*:[[:space:]]*"(.+)".*/\1/p' package.json)
+VERSION = $(shell sed -nE 's/.*"version"\s*:\s*"([0-9a-zA-Z_.-]+)".*/\1/p' package.json)
 
 .PHONY: all build tag-latest release
 
 all: build
 
 version:
-	@echo ${VERSION}
+	@echo $(VERSION)
 
 build:
 	docker build -t $(NAME):$(VERSION) --rm ./image
@@ -16,6 +16,9 @@ test:
 
 clean:
 	tests/mysql-tests.sh delete 
+
+bump:
+	sed -i -E "s/(youdowell[/]k8s-galera-init:)[0-9_.-]+/\1$(VERSION)/g" example/mysql.yaml
 
 tag-latest:
 	docker tag -f $(NAME):$(VERSION) $(NAME):latest

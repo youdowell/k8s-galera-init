@@ -14,8 +14,11 @@
   "author": "Andrew Usov <andrew.usov@gmail.com>",
   "license": "ISC",
   "scripts": {
+    "build": "make",
+    "pretest": "npm build",
     "test": "make test",
     "preversion": "npm test",
-    "postversion": "git push origin --tags"
+    "version": "make bump && git add -A example",
+    "postversion": "git push --follow-tags origin"
   }
 }
